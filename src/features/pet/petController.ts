@@ -1,43 +1,44 @@
 // src/features/pet/petController.ts
 import * as vscode from 'vscode';
-import { getPetState, updatePetState, PetState } from './petModel';
+import { getPetState, updatePetState } from './petModel';
 
-export function activatePet(context: vscode.ExtensionContext) {
-  const panel = vscode.window.createWebviewPanel(
-    'cozyPet',
-    'Cozy Pet',
-    vscode.ViewColumn.Two,
-    {
+export class CozyPetViewProvider implements vscode.WebviewViewProvider {
+  public static readonly viewType = 'cozyPetView';
+  private view?: vscode.WebviewView;
+
+  constructor(private readonly context: vscode.ExtensionContext) {}
+
+  resolveWebviewView(
+    webviewView: vscode.WebviewView
+  ): void | Thenable<void> {
+    this.view = webviewView;
+    webviewView.webview.options = {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'media')]
-    }
-  );
+      localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'media')]
+    };
 
-  const petState = getPetState(context);
-  const petScriptUri = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(context.extensionUri, 'src/ui/webviews/petScript.js')
-  );
-  const styleUri = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(context.extensionUri, 'src/ui/webviews/style.css')
-  );
-  const petUri = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(context.extensionUri, 'media/cat.png') // placeholder
-  );
+    const petUri = webviewView.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, 'media/cat.png')
+    );
+    const scriptUri = webviewView.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, 'src/ui/webviews/petScript.js')
+    );
+    const styleUri = webviewView.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, 'src/ui/webviews/style.css')
+    );
 
-  panel.webview.html = getPetHtml(petUri.toString(), petScriptUri.toString(), styleUri.toString());
+    webviewView.webview.html = getPetHtml(petUri.toString(), scriptUri.toString(), styleUri.toString());
 
-  panel.webview.onDidReceiveMessage(
-    message => {
+    webviewView.webview.onDidReceiveMessage(message => {
       if (message.command === 'petClicked') {
-        petState.mood = 'happy';
-        petState.xp += 1;
-        updatePetState(context, petState);
-        panel.webview.postMessage({ command: 'setMood', value: petState.mood });
+        const state = getPetState(this.context);
+        state.xp += 1;
+        state.mood = 'happy';
+        updatePetState(this.context, state);
+        this.view?.webview.postMessage({ command: 'setMood', value: 'happy' });
       }
-    },
-    undefined,
-    context.subscriptions
-  );
+    });
+  }
 }
 
 function getPetHtml(imageSrc: string, scriptSrc: string, cssSrc: string): string {
@@ -45,10 +46,9 @@ function getPetHtml(imageSrc: string, scriptSrc: string, cssSrc: string): string
     <!DOCTYPE html>
     <html>
     <head>
-      <link href="${cssSrc}" rel="stylesheet" />
+      <link rel="stylesheet" href="${cssSrc}">
     </head>
     <body>
-      <canvas id="petCanvas"></canvas>
       <img id="pet" src="${imageSrc}" alt="cat" />
       <script src="${scriptSrc}"></script>
     </body>

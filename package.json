@@ -3,15 +3,11 @@
   "displayName": "Cozy VSCode",
   "description": "A cozy and gamified VSCode extension with a virtual pet, ambient sounds, and a productivity boost.",
   "version": "0.1.0",
-  "author": {
-    "name": "Efe Deniz Bağlar",
-    "email": "efedenizbaglar45@gmail.com",
-    "url": "https://github.com/your-github-username"
-  },
+  "author": "Efe Deniz Bağlar <efedenizbaglar45@gmail.com> (https://github.com/your-github-username)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kanemoda/cozy-vscode.git"
+    "url": "git+https://github.com/kanemoda/cozy-vscode.git"
   },
   "bugs": {
     "url": "https://github.com/kanemoda/cozy-vscode/issues"
@@ -26,16 +22,27 @@
     "Productivity"
   ],
   "activationEvents": [
-    "onCommand:cozy.showPet"
+    "*"
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "cozy.showPet",
-        "title": "Show Cozy Pet"
-      }
-    ]
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "cozyPanel",
+          "title": "Cozy Pet",
+          "icon": "media/cat.png"
+        }
+      ]
+    },
+    "views": {
+      "cozyPanel": [
+        {
+          "id": "cozyPetView",
+          "name": "Cozy Pet"
+        }
+      ]
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
@@ -45,7 +52,7 @@
   },
   "devDependencies": {
     "@types/vscode": "^1.81.0",
-    "typescript": "^5.0.0",
-    "vscode": "^1.81.0"
-  }
+    "typescript": "^5.0.0"
+  },
+  "keywords": []
 }
