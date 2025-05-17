@@ -1,0 +1,21 @@
+/* src/ui/webviews/style.css */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #1e1e1e;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 100vh;
+}
+
+#pet {
+  width: 100px;
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+
+#pet.happy {
+  transform: scale(1.2) rotate(5deg);
+}
